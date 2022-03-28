@@ -1,6 +1,6 @@
 # 軟體外挂開發
 
-## unreal
+## UNREAL
 + 程序化房屋工具
 + 程序化平臺工具
 + 程序化圍欄工具
@@ -8,19 +8,19 @@
 + 程序化燈籠工具
 + 程序化河流工具
 
-## unity
+## UNITY
 + 批次出圖工具
 
-## Cocoscreator
+## COCOSCREATOR
 + 自動添加widgets并且設置為滿版的功能
 
-## 3ds
+## 3DS MAX
 + 物體法綫轉換工具
 + 多物件動態轉換成單物件skin的功能工具
 + skin物件輸出成頂點動畫工具
 + 根據選擇的uv轉換成選擇對應的頂點工具
 
-## maya
+## MAYA
 + 骨架動作轉為可編輯控制器動作工具
 + 批次骨架動作輸出工具
 + 控制器中心轉換工具
@@ -30,25 +30,31 @@
 + 多物件動態轉換成單物件skin的功能工具
 + skin物件輸出成頂點動畫工具
 
-## blender
+## BLENDER
 + 程序化樓梯工具
 + 程序化燈籠工具
 + 程序化橋梁工具
 + 彈性骨骼工具
 
-## photoshop
+## PHOTOSHOP
 + 批次轉換名稱工具
 
-## motion builder
+## MOTION BUILDER
 + 自動設置參數
 
-## houdini
+## HOUDINI
 + 河流flowmap輸出工具
 
 # 游戲前端開發
 
-## unreal
-+ 游戲
+## UNREAL
++ 前端component製作
+
+## COCOSCREATOR
++ 游戲前端製作
+
+## UNITY
++ 游戲前端製作
 
 
 
