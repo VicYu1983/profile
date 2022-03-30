@@ -1,0 +1,486 @@
+//# -*- coding: utf-8 -*-
+//# Last Modified 2015/08/13
+//# Author Chih Lun Kang
+
+/// FBX import 
+// some fbx import module not implement in py
+global proc string doImportFbx(string $filePth)
+{
+	FBXImportFillTimeline -v true;
+	FBXImportGenerateLog -v false;
+	FBXImportSkeletonDefinitionsAs -v "humanik";
+	FBXImportSkins -v false;
+	string $res = `FBXImport -f $filePth`;
+	return $res;
+}
+
+
+// FBX export
+// modified from "send to 3ds max" in maya native menu.
+// search "doOneClickSendOperation" in maya install folder
+// 
+
+global proc
+oneClickConstraintTargetValidation(string $constraintsToIgnore[])
+//
+// Check all selected constraints (other than $constraintsToIgnore).
+// Deselect the constraint if all of its targets are not selected.
+//
+{
+	// Build up the arrach and deselect all at once because it is
+	// much better for performance.
+	//
+	string $constraintsToDeselect[];
+	string $newConstraints[] = `ls -sl -type constraint`;
+
+	for( $constraint in $newConstraints )
+	{
+		// Identify newly added constraints
+		if( !stringArrayContains( $constraint, $constraintsToIgnore ) )
+		{
+			// Validate if all their targets are also selected
+			string $allConns[] = `listConnections -s 1 -d 0 -type dagNode $constraint`;
+			string $targets[] = stringArrayRemoveDuplicates($allConns);
+
+			string $selectedTarget[];
+			if( size( $targets ) > 0 )
+			{
+				$selectedTarget = `ls -sl $targets`;
+			}
+			
+			if( size($selectedTarget) != size($targets) )
+			{
+				// Not all the targets were selected, so we don't want this 
+				// constraint
+				//
+				$constraintsToDeselect[size($constraintsToDeselect)] = $constraint;
+			}
+		}
+	}
+	
+	if (size($constraintsToDeselect) > 0) {
+		select -deselect $constraintsToDeselect;
+	}
+}
+
+proc deselectHikRigs()
+{
+    // Max does not supports Rigs
+    // Deselect any Rig  or Rig element that may remain being selected
+                
+	string $controlSets[] = `ls -type HIKControlSetNode`;
+    string $todeselect[] = `ls -sl -type HIKControlSetNode`;
+                
+	for( $rig in $controlSets )
+	{
+        string $effectors[] = hikGetIkNodesFromControlRig( $rig, 1 ); 
+        string $fks[] = hikGetFkNodesFromControlRig( $rig );
+                    
+        if( size( $effectors ) > 0 )
+        {
+            $effectors = `ls -sl $effectors`;
+
+            if( size( $effectors ) > 0 )
+            {
+                $todeselect = stringArrayCatenate( $todeselect, $effectors );
+            }
+        }              
+
+        if( size( $fks ) > 0 )
+        {
+            $fks = `ls -sl $fks`;
+
+            if( size( $fks ) > 0 )
+            {
+                $todeselect = stringArrayCatenate( $todeselect, $fks );
+            }
+        }              
+    }
+                
+    if( size( $todeselect ) > 0 )
+    { 
+        select -deselect $todeselect;
+    }
+}
+
+global proc addBlendShapeTargetsForSelection()
+//
+// If a blendShaped geometry is selected, add the targets
+//	
+{
+	string $blendShapes[] = `ls -type blendShape`;
+	string $targetsToAdd[];
+
+	for ($blendShape in $blendShapes)
+	{
+		int $exportTargets = 0;
+		string $meshes[] = `deformer -q -geometry $blendShape`;
+		for ($mesh in $meshes) {
+			string $checkSel[] = `ls -sl $mesh`;
+			if (size($checkSel) > 0) {
+				$exportTargets = 1;
+				break;
+			}
+		}
+		if ($exportTargets) {
+			string $targets[] = `blendShape -q -target $blendShape`;
+			for ($target in $targets) {
+				string $checkTarget[] = `ls -sl $target`;
+				if (size($checkTarget) == 0) {
+					$targetsToAdd[size($targetsToAdd)] = $target;
+				}
+			}
+			// also, if any base shapes were not selected, get them also
+			//
+			for ($mesh in $meshes) {			
+				string $checkSel[] = `ls -sl $mesh`;
+				if (size($checkSel) == 0) {
+					$targetsToAdd[size($targetsToAdd)] = $mesh;
+				}
+			}
+		}
+	}
+	if (size($targetsToAdd) > 0) {
+		select -add $targetsToAdd;
+	}
+}
+
+
+global proc addSkinRelatedToSelection()
+//
+// Select meshes bound to the selected transforms
+//	
+{
+	string $influences[] = `ls -sl -type transform`;
+	
+	if( size( $influences ) > 0 )
+	{
+		string $skinClusters[] = `listConnections -s 0 -d 1 -type skinCluster $influences`;
+		string $meshesToAdd[];
+		
+		for( $skinCluster in $skinClusters )
+		{
+			string $meshes[] = `deformer -q -geometry $skinCluster`;
+			
+			if( size($meshes) > 0 )
+			{
+				for ($mesh in $meshes) {
+					// Only modify the selection if the object is not already selected. Otherwise
+					// needless messages and other checks are performed.
+					//
+					string $checkSel[] = `ls -sl $mesh`;
+					if (size($checkSel) == 0) {
+						$meshesToAdd[size($meshesToAdd)] = $mesh;
+					}
+				}
+			}
+		}
+
+		if (size($meshesToAdd) > 0) {
+			select -add $meshesToAdd;
+		}
+	}
+}
+
+
+global proc oneClickSelectRoot( string $dagNode )
+{
+	if (`objectType -isa "dagNode" $dagNode`) {
+		// select the top item in the hierarchy of the dagNode
+		//
+		string $fullPath[] = `ls -long $dagNode`;
+		string $buffer[];
+		if (tokenize($fullPath[0],"|",$buffer))
+		{
+			if (size($buffer) > 0 ) 
+			{
+				// Only modify the selection if the object is not already selected. Otherwise
+				// needless messages and other checks are performed.
+				//
+				string $checkSel[] = `ls -sl ("|"+$buffer[0])`;
+				if (size($checkSel) == 0) {
+					select -add ("|"+$buffer[0]);
+				}
+			}
+		}
+	}
+}
+
+global
+proc int augmentSelectionForOneClickMax( string $action,
+										 int $restrictedUpdate  )
+{
+	string $sel[] = `ls -sl`;
+	
+	for ($obj in $sel) {
+		// select the top item in the hierarchy for all selected items
+		//
+		oneClickSelectRoot( $obj );
+	}
+	string $constraintsSel[] = `ls -sl -type constraint`;
+	select -hierarchy;
+
+	if( $restrictedUpdate )
+	{
+		// select -hierarchy causes meshes to be really selected instead of there associated transform
+		// From there we can find skinCluster assocuated to selected meshes and then then the influences
+		string $meshes[] = `ls -sl -type mesh`;
+		
+		if( size( $meshes ) > 0 )
+		{
+			string $skinClusters[] = `listConnections -type skinCluster -s 1 -d 0 $meshes`; 	
+
+			if( size( $skinClusters ) > 0 )
+			{
+				string $influences[] = `listConnections -s 1 -d 0 -type transform $skinClusters`;
+
+				if( size( $influences ) > 0 )
+				{
+					for( $influence in $influences)
+					{
+						oneClickSelectRoot( $influence );
+					}
+
+					select -hierarchy;
+				}
+			}
+		}
+
+		if( `pluginInfo -q -l "mayaHIK"` ) 
+		{
+
+			// Now that hierarchies are selected, for every character check if the skeleton or the rig are selected
+			string $characters[] = `ls -type HIKCharacterNode -type HIKControlSetNode`;
+
+			for( $character in $characters )
+			{
+				string $hipsBone = hikGetSkNode( $character, 1 );
+
+				if( $hipsBone != "" )
+				{
+					string $selection[] = `ls -sl $hipsBone`;
+
+					if( size( $selection ) > 0 )
+					{
+                        doOneClickSelectHikSkeleton( $character );
+					}
+				}
+			}
+
+
+			// Check for selected control sets and select the associated character
+			string $selectedControlSets[] = `ls -sl -type HIKControlSetNode`;
+
+			for( $rig in $selectedControlSets )
+			{
+				string $character = hikGetCharacterDefinition( $rig );
+
+				if( $character != "" )
+				{
+                    doOneClickSelectHikSkeleton( $character );
+				}
+			}
+
+			select -hierarchy;
+		}
+
+		if( $action != "update" )
+		{
+			addSkinRelatedToSelection();
+			addBlendShapeTargetsForSelection();
+		}
+
+        deselectHikRigs();
+
+		// Some source constraits are added by select -hierarchy
+		// Keep these new selected constraints only if all the
+		// associated targets are also selected
+		//
+		oneClickConstraintTargetValidation($constraintsSel);
+	}
+	else
+	{
+		// Now add all dag nodes in the "history" and "future" of the
+		// selection -- this gets things like constraint targets, skinning,
+		// blendShape targets etc. We don't need to grab the history nodes
+		// themselves since FBX export will do the appropriate thing.
+		//
+		string $allFuture[] = `listHistory -future 1`;
+		string $allHistory[] = `listHistory`;
+		select -add `ls -type "dagNode" $allFuture`;
+		select -add `ls -type "dagNode" $allHistory`;
+		addSkinRelatedToSelection();
+	}
+
+	global string $gPreviousMaxSent[];
+	$gPreviousMaxSent = `ls -sl`;
+	
+	global int $gPreviousMaxScriptJob;
+	if ($gPreviousMaxScriptJob < 0) {
+		$gPreviousMaxScriptJob = `scriptJob -permanent -e deleteAll "clearPreviousMaxSendList"`;
+	}
+	
+	return 1;
+}
+
+global proc
+int getOneClickRestrictedUpdateVal()
+{
+	int $restrictedUpdate = 0;
+	string $controlVar = tolower( `getenv "ONECLICK_SELECT_WHOLE_CHARACTER"` );
+	if( ($controlVar != "maya") && ($controlVar != "all") )
+	{ 
+		$restrictedUpdate = 1;
+	}
+	return $restrictedUpdate;
+}
+
+global
+proc string fbxExOperation( string $fbxPresetCmd,
+							string $fileNameString,
+							int $restrictedUpdate,
+							string $camName,
+							string $isDefaultCam,
+							int $includeConnections,
+							int $embedTextures,
+							string $fileNameDir
+						   )
+{
+	if (! `pluginInfo -q -loaded fbxmaya`) {
+		loadPlugin fbxmaya;
+	}
+	
+	string $newCamName;
+	
+	if (size($camName) > 0) 
+	{
+		if ($isDefaultCam) 
+		{
+			string $result[] = `duplicate $camName`;
+			$newCamName = `rename $result[0] MayaCamera`;
+			lookThru $newCamName;
+			select -add $newCamName;
+		}
+		else 
+		{
+			string $activeCamSel[] = `ls -sl $camName`;
+			if (size($activeCamSel) == 0) 
+			{
+				select -add $camName;
+			} 
+			else 
+			{
+				$camName = "";
+			}
+		}
+	}
+	
+	string $filename = $fileNameDir + $fileNameString;
+
+	// Save all import+export IOSettings
+	//
+	FBXPushSettings;
+	
+	// Load default presets
+	//
+	if (size($fbxPresetCmd) > 0) 
+	{
+		eval $fbxPresetCmd;
+	}
+	
+	
+	if( $restrictedUpdate )
+	{
+		if ($includeConnections) {
+			FBXExportInputConnections -v true;
+		} else {
+			FBXExportInputConnections -v false;			
+		}
+		
+		// TEST
+		FBXExportInputConnections -v false;			
+		
+        // FBXExportBakeResampleAnimation -v true;
+		FBXProperty "Export|IncludeGrp|Animation|CurveFilter" -v true;
+		FBXExportApplyConstantKeyReducer -v true;
+	}
+		
+    if( $embedTextures )
+    {
+        FBXExportEmbeddedTextures -v true;
+    }
+
+	// Save the file
+	// TEST
+	FBXExport -f $filename -s;
+	
+	// Restore all import+export IOSettings from the push
+	//
+	FBXPopSettings;
+	
+	if (size($camName) > 0) {
+		if (size($newCamName) > 0) {
+			lookThru $camName;
+			delete $newCamName;
+		} else {
+			select -d $camName;
+		}
+	}
+	return $filename;
+}
+
+
+global proc string doUE4Flow(string $fileDir,string $fileName,int $bAnim)
+{
+	int $restrictedUpdate = getOneClickRestrictedUpdateVal();
+	//print "fffffff";
+	//print $restrictedUpdate;
+	if($bAnim)
+	{
+		if (!augmentSelectionForOneClickMax( "sendNew", $restrictedUpdate )) 
+		{
+			return "";
+		}	
+	}
+	string $camName = "";
+	int $isDefaultCam = 0;
+	/*
+	// Commented out since the current design thinking is that we
+	// should not send cameras between hero applications.
+	//
+			if (size($args) >= 3 && size($args[1]) > 0) {
+				$camName = $args[1];
+				int $isDefaultCam = $args[2];
+			}
+	*/
+	
+	string $maxExportPreset = "FBXResetExport;";
+	if($bAnim)
+		$maxExportPreset = "FBXResetExport; FBXExportBakeComplexAnimation -v true; FBXExportBakeResampleAnimation -v true;";
+	
+	
+	string $filename;
+	$filename = fbxExOperation( $maxExportPreset,
+								$fileName,
+								$restrictedUpdate,
+								$camName,
+								$isDefaultCam,
+								1 ,/* include connections */
+								false,/* embedTextures */  
+								$fileDir
+							  );
+	//print ("ffffffff");
+	//print ($fileDir + "\n");
+	return $filename;
+
+}
+								   
+global proc doExportFbxAnim(string $fileDir,string $fileName)
+{
+	string $res = doUE4Flow($fileDir,$fileName,1);
+}
+
+global proc doExportFbxModel(string $fileDir,string $fileName)
+{
+	string $res = doUE4Flow($fileDir,$fileName,0);
+}

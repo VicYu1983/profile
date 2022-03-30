@@ -1,0 +1,632 @@
+reorder -relative 1 Neck_M ;
+reorder -relative 2 MiddleFinger1_L ;
+reorder -relative 2 MiddleFinger1_R ;
+
+$height = getAttr("Main.height");
+$bIsZUp = 0;
+if(`upAxis -q -ax` == "z")
+	$bIsZUp = 1;
+$fitJoints=`listRelatives -ad -type joint FitSkeleton`;
+
+if ($bIsZUp){
+	setAttr RootX_M.rotateOrder 5;
+}else{
+	setAttr RootX_M.rotateOrder 4;
+}
+
+parent -w "Root_M" ;
+select -cl;
+string $jntroot = `joint`;
+rename $jntroot "root";
+parent "Root_M" "root";
+
+string $joints[]=`listRelatives -type joint -ad Main`;
+for ($i=0;$i<size($joints);$i++)
+	setAttr ($joints[$i]+".drawStyle") 2;
+
+if($bIsZUp)
+	circle -c 0 0 0 -nr 0 0 1 -sw 360 -r ($height * 0.028) -d 3 -ut 0 -tol 0.01 -s 8 -ch 1 -n "root_ctrl";
+else
+	circle -c 0 0 0 -nr 0 1 0 -sw 360 -r ($height * 0.028) -d 3 -ut 0 -tol 0.01 -s 8 -ch 1 -n "root_ctrl";
+
+select -r root_ctrl.cv[5] ;
+if($bIsZUp)
+	move -r -os -wd 0 ($height * -0.036) 0;
+else
+	move -r -os -wd 0 0 ($height * 0.036);
+//setAttr "root_ctrlShape.overrideEnabled" 1;
+//setAttr "root_ctrlShape.overrideColor" 22;
+group -n root_ctrlZGrp root_ctrl;
+group -n root_ctrlYGrp root_ctrlZGrp;;
+group -n root_ctrlXGrp root_ctrlYGrp;
+select Main;
+addAttr -ln "rootMotionXCtrl" -dv 1 -min 0 -max 1 -k 1;
+addAttr -ln "rootMotionYCtrl" -dv 1 -min 0 -max 1 -k 1;
+addAttr -ln "rootMotionZCtrl" -dv 1 -min 0 -max 1 -k 1;
+pointConstraint -mo -w 1 -skip y -skip z RootX_M root_ctrlXGrp;
+pointConstraint -mo -w 1 -skip x -skip z RootX_M root_ctrlYGrp;
+pointConstraint -mo -w 1 -skip x -skip y RootX_M root_ctrlZGrp;
+connectAttr Main.rootMotionXCtrl root_ctrlXGrp_pointConstraint1.RootX_MW0;
+connectAttr Main.rootMotionYCtrl root_ctrlYGrp_pointConstraint1.RootX_MW0;
+connectAttr Main.rootMotionZCtrl root_ctrlZGrp_pointConstraint1.RootX_MW0;
+
+pointConstraint -mo -weight 1 root_ctrl root;
+
+if($bIsZUp)
+	orientConstraint -mo -sk x -sk y -weight 1 root_ctrl root;
+else
+	orientConstraint -mo -sk x -sk z -weight 1 root_ctrl root;
+
+parent root_ctrlXGrp Group;
+select -r root_ctrl ;
+setAttr -lock true "root_ctrl.rx";
+
+if($bIsZUp)
+	setAttr -lock true "root_ctrl.ry";
+else
+	setAttr -lock true "root_ctrl.rz";
+
+
+sets -addElement ControlSet "root_ctrl";
+
+/*
+string $asScriptLoc=`asSelectorScriptLocation`;
+// print($asScriptLoc+"\n");
+python("import sys");
+python("_path = sys.path");
+python("found=False\nfor p in _path:\n	if(p==\""+$asScriptLoc+"\"):\n		found=True\nif(not found):\n	sys.path.append(\""+$asScriptLoc+"\")");
+python("import AS_MotionConstrain")
+python("reload(AS_MotionConstrain)");
+python("AS_MotionConstrain.asAfterBuildJoyFunModified()");
+*/
+//twist 
+
+if(`objExists ShoulderPart2_R`)
+	parent "ShoulderPart2_R" "Shoulder_R";
+if(`objExists ShoulderPart2_L`)
+	parent "ShoulderPart2_L" "Shoulder_L";
+
+if(`objExists Elbow_L`)
+{
+	parent "Elbow_L" "Shoulder_L";
+	reorder -front "Elbow_L";
+}
+if(`objExists Elbow_R`)
+{	
+	parent "Elbow_R" "Shoulder_R";
+	reorder -front "Elbow_R";
+}
+if(`objExists Knee_L`)
+{
+	parent "Knee_L" "Hip_L";
+	reorder -front "Knee_L";
+	parent "Knee_R" "Hip_R";
+	reorder -front "Knee_R";
+
+	parent "Wrist_L" "Elbow_L";
+	reorder -front "Wrist_L";
+
+	parent "Wrist_R" "Elbow_R";
+	reorder -front "Wrist_R";
+}
+
+if(`objExists Knee_L`)
+{
+	setAttr "IKXWrist_L.rotateOrder" 2;
+	setAttr "IKXWrist_R.rotateOrder" 2;
+	setAttr "TwistFollowElbow_L_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowParentElbow_L_parentConstraint1.interpType" 2;
+	setAttr "TwistBalancerElbow_L_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowElbow_R_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowParentElbow_R_parentConstraint1.interpType" 2;
+	setAttr "TwistBalancerElbow_R_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowWrist_L_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowParentWrist_L_parentConstraint1.interpType" 2;
+	setAttr "TwistBalancerWrist_L_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowWrist_R_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowParentWrist_R_parentConstraint1.interpType" 2;
+	setAttr "TwistBalancerWrist_R_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowShoulder_L_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowParentShoulder_L_parentConstraint1.interpType" 2;
+	setAttr "TwistBalancerShoulder_L_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowShoulder_R_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowParentShoulder_R_parentConstraint1.interpType" 2;
+	setAttr "TwistBalancerShoulder_R_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowHip_L_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowParentHip_L_parentConstraint1.interpType" 2;
+	setAttr "TwistBalancerHip_L_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowHip_R_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowParentHip_R_parentConstraint1.interpType" 2;
+	setAttr "TwistBalancerHip_R_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowKnee_L_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowParentKnee_L_parentConstraint1.interpType" 2;
+	setAttr "TwistBalancerKnee_L_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowKnee_R_parentConstraint1.interpType" 2;
+	setAttr "TwistFollowParentKnee_R_parentConstraint1.interpType" 2;
+	setAttr "TwistBalancerKnee_R_parentConstraint1.interpType" 2;
+}
+
+//Weapon End
+
+// if(`objExists "Weapon"`)
+// {rename ("FKWeapon_R") "weapon_R_ctrl";
+// rename ("FKWeapon_L") "weapon_L_ctrl";    
+// rename ("FKWeaponSec_R") "weaponSec_R_ctrl";
+// rename ("FKWeaponSec_L") "weaponSec_L_ctrl";
+// rename ("FKWeapon1_M") "weapon_M_ctrl";
+// rename ("Weapon_R") "weapon_R_jnt";
+// rename ("Weapon_L") "weapon_L_jnt";   
+// rename ("WeaponSec_R") "weaponSec_R_jnt";
+// rename ("WeaponSec_L") "weaponSec_L_jnt";
+// rename ("Weapon1_M") "weapon_M_jnt";
+// delete ("Weapon_End_R");
+// delete ("Weapon_End_L");
+// delete ("WeaponSec_End_R");
+// delete ("WeaponSec_End_L");
+// delete ("Weapon_End1_M");
+// parent "weapon_R_jnt" "root";
+// parent "weapon_L_jnt" "root";  
+// parent "weaponSec_R_jnt" "root";
+// parent "weaponSec_L_jnt" "root";
+// parent "weapon_M_jnt" "root";
+
+// string $renameWJ[]={"weapon_L_jnt","weapon_R_jnt","weapon_M_jnt","weaponSec_L_jnt","weaponSec_R_jnt"};
+//     for($i=0 ;$i<size($renameWJ) ;$i++){
+//         duplicate -n $renameWJ[$i] $renameWJ[$i];
+//         rename $renameWJ[$i] ($renameWJ[$i]+"_P2");               
+//         }
+//     for($j=0 ;$j<size($renameWJ) ;$j++){
+//         rename ($renameWJ[$j]+"1") $renameWJ[$j];
+//         }
+// string $renameWJ2[]={"weapon_R_jnt_P2","weapon_L_jnt_P2","weaponSec_R_jnt_P2","weaponSec_L_jnt_P2","weapon_M_jnt_P2"};    
+// string $renameOJ[]={"Wrist_R","Wrist_L","Root_M","Root_M","Chest_M"};  
+//     for($k=0 ;$k<size($renameWJ) ;$k++){
+//         parent $renameWJ2[$k] $renameOJ[$k];        
+//     }
+// string $renameWC[]={"weapon_L_ctrl","weapon_R_ctrl","weapon_M_ctrl","weaponSec_L_ctrl","weaponSec_R_ctrl"};
+//     for($m=0 ;$m<size($renameWJ) ;$m++){
+//         parentConstraint -mo $renameWC[$m] $renameWJ[$m];
+//         scaleConstraint -mo $renameWC[$m] $renameWJ[$m];
+//     }
+
+
+// }
+
+
+
+//Capsule add
+if(`objExists "frontRump"`)
+{ 
+createNode -n ("Scapula_L") joint ;
+parent ("Scapula_L") ("root");
+$Scapula_L = `parentConstraint ("frontRump_L") ("Scapula_L")`;
+delete $Scapula_L ;
+createNode -n ("Scapula_R") joint ;
+parent ("Scapula_R") ("root");
+$Scapula_R = `parentConstraint ("frontRump_R") ("Scapula_R")`;
+delete $Scapula_R ;
+}
+
+//add spine0
+
+float $hipWPos[] = `xform -q -ws -t "Root_M"`;
+float $hipWRot[] = `xform -q -ws -ro "Root_M"`;
+joint -n "Spine0_M" -p $hipWPos[0] $hipWPos[1] $hipWPos[2];
+xform -ws -ro $hipWRot[0] $hipWRot[1] $hipWRot[2] "Spine0_M";
+parent "Spine0_M" "Root_M";
+makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 -pn 1 "Spine0_M";
+parent "Spine1_M" "Spine0_M";
+sets -in "DeformSet" "Spine0_M";
+
+// editDisplayLayerMembers -noRecurse "Joint" "Spine0_M";
+
+
+
+
+
+proc fixOffsetRotate (string $fixJnt, string $side, int $height ){
+    
+	// 2021/2/5 粽子說先不要把旋轉值壓到FKShoulder上，只鎖手肘就好
+    // $oriWRot = `xform -q -ws -ro ("FK"+$fixJnt+$side)`;
+    // // setAttr ("FKOffset"+$fixJnt+$side+".jointOrient") 0 0 0; 
+    // setAttr ("FKOffset"+$fixJnt+$side+".rotate") 0 0 0; 
+    // setAttr ("FKExtra"+$fixJnt+$side+".rotate") 0 0 0;
+    // xform -ws -ro $oriWRot[0] $oriWRot[1] $oriWRot[2] ("FK"+$fixJnt+$side);
+
+    //Global
+    $gWRot = `xform -q -ws -ro ("FKGlobalStatic"+$fixJnt+$side)`;
+    xform -ws -ro $gWRot[0] $gWRot[1] $gWRot[2] ("GlobalOffset"+$fixJnt+$side);
+
+    //Arm IK fix
+    $gWRot = `xform -q -ws -ro ("IKFKAlignedOffsetArm"+$side)`;
+    float $wMtx[] = `xform -q -ws -m ("IKFKAlignedOffsetArm"+$side)`;
+    float $newMtx[] = { -$wMtx[8], -$wMtx[9], -$wMtx[10], 0,
+                        -$wMtx[4], -$wMtx[5], -$wMtx[6], 0,
+                        -$wMtx[0], -$wMtx[1], -$wMtx[2], 0,
+                         $wMtx[12], $wMtx[13], $wMtx[14], $wMtx[15] };
+
+    if ($side=="_L"){
+        $newMtx = { -$wMtx[8], -$wMtx[9], -$wMtx[10],0,
+                    $wMtx[4], $wMtx[5], $wMtx[6],0,
+                    $wMtx[0], $wMtx[1], $wMtx[2],0,
+                    $wMtx[12],$wMtx[13],$wMtx[14],$wMtx[15]};
+    }
+    xform -ws -m $newMtx[0] $newMtx[1] $newMtx[2] $newMtx[3] $newMtx[4] $newMtx[5] $newMtx[6] $newMtx[7] $newMtx[8] $newMtx[9] $newMtx[10] $newMtx[11] $newMtx[12] $newMtx[13] $newMtx[14] $newMtx[15] ("IKArm"+$side);
+    xform -ws -ro $gWRot[0] $gWRot[1] $gWRot[2] ("IKFKAlignedOffsetArm"+$side);
+    // Align IKFX locator
+    xform -ws -m $newMtx[0] $newMtx[1] $newMtx[2] $newMtx[3] $newMtx[4] $newMtx[5] $newMtx[6] $newMtx[7] $newMtx[8] $newMtx[9] $newMtx[10] $newMtx[11] $newMtx[12] $newMtx[13] $newMtx[14] $newMtx[15] ("AlignIKToWrist"+$side);
+
+    // Add IK Hand Roll Controller
+    string $IKHandRollTransFix = `createNode "transform" -n ("IKHandRollOffset"+$side)`;
+    float $sr = 0.523598775598; // pi/6
+    float $cr = $height * 0.055;
+    string $IKHandRoll = `curve -n ("IKHandRoll"+$side)
+                                -p 0 (sin($sr *  0) * $cr) (cos($sr *  0) * $cr)
+                                -p 0 (sin($sr *  1) * $cr) (cos($sr *  1) * $cr)
+                                -p 0 (sin($sr *  2) * $cr) (cos($sr *  2) * $cr)
+                                -p 0 (sin($sr *  3) * $cr) (cos($sr *  3) * $cr)
+                                -p 0 (sin($sr *  4) * $cr) (cos($sr *  4) * $cr)
+                                -p 0 (sin($sr *  5) * $cr) (cos($sr *  5) * $cr)
+                                -p 0 (sin($sr *  6) * $cr) (cos($sr *  6) * $cr)
+                                -p 0 (sin($sr *  7) * $cr) (cos($sr *  7) * $cr)
+                                -p 0 (sin($sr *  8) * $cr) (cos($sr *  8) * $cr)
+                                -p 0 (sin($sr *  9) * $cr) (cos($sr *  9) * $cr)
+                                -p 0 (sin($sr * 10) * $cr) (cos($sr * 10) * $cr)
+                                -p 0 (sin($sr * 11) * $cr) (cos($sr * 11) * $cr)
+                                -p 0 (sin($sr * 12) * $cr) (cos($sr * 12) * $cr)
+                                -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12
+                                -d 1`;
+    xform -ws -t $newMtx[12] $newMtx[13] $newMtx[14] $IKHandRoll;
+    xform -ws -ro $gWRot[0] $gWRot[1] $gWRot[2] $IKHandRoll;
+    xform -ws -t $newMtx[12] $newMtx[13] $newMtx[14] $IKHandRollTransFix;
+    xform -ws -ro $gWRot[0] $gWRot[1] $gWRot[2] $IKHandRollTransFix;
+    parent $IKHandRollTransFix ("IKArm"+$side);
+    parent $IKHandRoll $IKHandRollTransFix;
+    parent ("IKFKAlignedOffsetArm"+$side) $IKHandRoll;
+    setAttr -lock true -keyable false -channelBox false ($IKHandRoll+".tx");
+    setAttr -lock true -keyable false -channelBox false ($IKHandRoll+".ty");
+    setAttr -lock true -keyable false -channelBox false ($IKHandRoll+".tz");
+    setAttr -lock true -keyable false -channelBox false ($IKHandRoll+".ry");
+    setAttr -lock true -keyable false -channelBox false ($IKHandRoll+".rz");
+    setAttr -lock true -keyable false -channelBox false ($IKHandRoll+".sx");
+    setAttr -lock true -keyable false -channelBox false ($IKHandRoll+".sy");
+    setAttr -lock true -keyable false -channelBox false ($IKHandRoll+".sz");
+    setAttr ($IKHandRoll + ".overrideEnabled") 1;
+    setAttr ($IKHandRoll + ".overrideRGBColors") 1;
+    setAttr ($IKHandRoll + ".overrideColorR") 0.9;
+    setAttr ($IKHandRoll + ".overrideColorG") 0.4;
+    setAttr ($IKHandRoll + ".overrideColorB") 0.05;
+    sets -in "ControlSet" $IKHandRoll;
+
+    // Align IKFX locator
+    xform -ws -m $newMtx[0] $newMtx[1] $newMtx[2] $newMtx[3] $newMtx[4] $newMtx[5] $newMtx[6] $newMtx[7] $newMtx[8] $newMtx[9] $newMtx[10] $newMtx[11] $newMtx[12] $newMtx[13] $newMtx[14] $newMtx[15] ("AlignIKToWrist"+$side);
+
+    // Lock & Hide FKElbow illegal rotate axis
+    setAttr -lock true -keyable false -channelBox false ("FKElbow" + $side + ".rx");
+    setAttr -lock true -keyable false -channelBox false ("FKElbow" + $side + ".ry");
+}
+
+fixOffsetRotate("Shoulder", "_L", $height);
+fixOffsetRotate("Shoulder", "_R", $height);
+
+
+// //create COG
+// float $cs = $height * 0.28;
+// curve -n "COG"
+// 		-p ( $cs) ( $cs) ( $cs)
+// 		-p (-$cs) ( $cs) ( $cs)
+// 		-p (-$cs) (-$cs) ( $cs)
+// 		-p ( $cs) (-$cs) ( $cs)
+// 		-p ( $cs) ( $cs) ( $cs)
+// 		-p ( $cs) ( $cs) (-$cs)
+// 		-p (-$cs) ( $cs) (-$cs)
+// 		-p (-$cs) (-$cs) (-$cs)
+// 		-p ( $cs) (-$cs) (-$cs)
+// 		-p ( $cs) ( $cs) (-$cs)
+// 		-p ( $cs) ( $cs) ( $cs)
+// 		-p (-$cs) ( $cs) ( $cs)
+// 		-p (-$cs) ( $cs) (-$cs)
+// 		-p (-$cs) (-$cs) (-$cs)
+// 		-p (-$cs) (-$cs) ( $cs)
+// 		-p ( $cs) (-$cs) ( $cs)
+// 		-p ( $cs) (-$cs) (-$cs)
+// 		-k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16
+// 		-d 1;
+// float $wPosHip[] = `xform -q -ws -t "RootX_M"`;
+// xform -ws -t $wPosHip[0] $wPosHip[1] $wPosHip[2] "COG";
+// parent "COG" "Main";
+// parent "MotionSystem" "COG";
+// sets -in "ControlSet" "COG";
+// // editDisplayLayerMembers -noRecurse "Controller" "COG";
+// setAttr "COG.overrideEnabled" 1;
+// setAttr "COG.overrideRGBColors" 1;
+// setAttr "COG.overrideColorR" 0.25;
+// setAttr "COG.overrideColorG" 0.25;
+// setAttr "COG.overrideColorB" 0.25;
+
+//Save Skin Pose
+string $ctrlList[] = `sets -q "ControlSet"`;
+
+for ($i = 0; $i < size($ctrlList); $i++){
+	// print($ctrlList[$i]+"\n");
+	addAttr -ln "SPTranMtx" -at "matrix" -k 0 $ctrlList[$i];
+	float $wMtx[] = `xform -q -m $ctrlList[$i]`;
+	setAttr ($ctrlList[$i]+".SPTranMtx") -type "matrix"
+			 $wMtx[ 0] $wMtx[ 1] $wMtx[ 2] $wMtx[ 3]
+			 $wMtx[ 4] $wMtx[ 5] $wMtx[ 6] $wMtx[ 7]
+			 $wMtx[ 8] $wMtx[ 9] $wMtx[10] $wMtx[11]
+			 $wMtx[12] $wMtx[13] $wMtx[14] $wMtx[15];
+}
+
+// set mirror info
+for ($i = 0; $i < size($ctrlList); $i++){
+	addAttr -ln "MirrorNode" -dt "string" $ctrlList[$i];
+
+	addAttr -ln "InvPosX" -at "bool" -k 0 $ctrlList[$i];
+	addAttr -ln "InvPosY" -at "bool" -k 0 $ctrlList[$i];
+	addAttr -ln "InvPosZ" -at "bool" -k 0 $ctrlList[$i];
+
+	addAttr -ln "InvRotX" -at "bool" -k 0 $ctrlList[$i];
+	addAttr -ln "InvRotY" -at "bool" -k 0 $ctrlList[$i];
+	addAttr -ln "InvRotZ" -at "bool" -k 0 $ctrlList[$i];
+
+	addAttr -ln "MirrorRotOffset" -at "double3" -k 0 $ctrlList[$i];
+	addAttr -ln "MirrorRotOffsetX" -at "double" -p "MirrorRotOffset" -k 0 $ctrlList[$i];
+	addAttr -ln "MirrorRotOffsetY" -at "double" -p "MirrorRotOffset" -k 0 $ctrlList[$i];
+	addAttr -ln "MirrorRotOffsetZ" -at "double" -p "MirrorRotOffset" -k 0 $ctrlList[$i];
+
+	int $nSize = `size $ctrlList[$i]`;
+	string $cSide = `substring $ctrlList[$i] ($nSize-1) ($nSize)`;
+	if ($cSide == "_L"){
+		setAttr ($ctrlList[$i]+".MirrorNode") -type "string" (`substring $ctrlList[$i] 1 ($nSize-1)` + "R");
+	}
+	else if ($cSide == "_R"){
+		setAttr ($ctrlList[$i]+".MirrorNode") -type "string" (`substring $ctrlList[$i] 1 ($nSize-1)` + "L");
+	}
+	else {
+		setAttr ($ctrlList[$i]+".MirrorNode") -type "string" $ctrlList[$i];
+	}
+	setAttr ($ctrlList[$i]+".InvPosX") 1;
+}
+////////////////////
+setAttr "Main.InvRotY" 1;
+setAttr "Main.InvRotZ" 1;
+
+setAttr "RootX_M.InvRotY" 1;
+setAttr "RootX_M.InvRotZ" 1;
+
+setAttr "FKRoot_M.InvRotX" 1;
+setAttr "FKRoot_M.InvRotY" 1;
+
+setAttr "FKSpine1_M.InvPosX" 0;
+setAttr "FKSpine1_M.InvPosY" 0;
+setAttr "FKSpine1_M.InvPosZ" 1;
+setAttr "FKSpine1_M.InvRotX" 1;
+setAttr "FKSpine1_M.InvRotY" 1;
+
+setAttr "FKChest_M.InvPosX" 0;
+setAttr "FKChest_M.InvPosY" 0;
+setAttr "FKChest_M.InvPosZ" 1;
+setAttr "FKChest_M.InvRotX" 1;
+setAttr "FKChest_M.InvRotY" 1;
+
+setAttr "FKNeck_M.InvPosX" 0;
+setAttr "FKNeck_M.InvPosY" 0;
+setAttr "FKNeck_M.InvPosZ" 1;
+setAttr "FKNeck_M.InvRotX" 1;
+setAttr "FKNeck_M.InvRotY" 1;
+
+setAttr "FKHead_M.InvPosX" 0;
+setAttr "FKHead_M.InvPosY" 0;
+setAttr "FKHead_M.InvPosZ" 1;
+setAttr "FKHead_M.InvRotX" 1;
+setAttr "FKHead_M.InvRotY" 1;
+
+setAttr "IKLeg_R.InvRotY" 1;
+setAttr "IKLeg_R.InvRotZ" 1;
+setAttr "IKLeg_L.InvRotY" 1;
+setAttr "IKLeg_L.InvRotZ" 1;
+
+setAttr "RollHeel_R.InvRotY" 1;
+setAttr "RollHeel_R.InvRotZ" 1;
+setAttr "RollHeel_L.InvRotY" 1;
+setAttr "RollHeel_L.InvRotZ" 1;
+
+setAttr "RollToes_R.InvRotY" 1;
+setAttr "RollToes_R.InvRotZ" 1;
+setAttr "RollToes_L.InvRotY" 1;
+setAttr "RollToes_L.InvRotZ" 1;
+
+setAttr "RollToesEnd_R.InvRotY" 1;
+setAttr "RollToesEnd_R.InvRotZ" 1;
+setAttr "RollToesEnd_L.InvRotY" 1;
+setAttr "RollToesEnd_L.InvRotZ" 1;
+
+setAttr "FKToes_R.InvPosX" 1;
+setAttr "FKToes_R.InvPosY" 1;
+setAttr "FKToes_R.InvPosZ" 1;
+setAttr "FKToes_L.InvPosX" 1;
+setAttr "FKToes_L.InvPosY" 1;
+setAttr "FKToes_L.InvPosZ" 1;
+
+setAttr "FKHip_R.InvPosX" 1;
+setAttr "FKHip_R.InvPosY" 1;
+setAttr "FKHip_R.InvPosZ" 1;
+setAttr "FKHip_L.InvPosX" 1;
+setAttr "FKHip_L.InvPosY" 1;
+setAttr "FKHip_L.InvPosZ" 1;
+
+setAttr "FKKnee_R.InvPosX" 1;
+setAttr "FKKnee_R.InvPosY" 1;
+setAttr "FKKnee_R.InvPosZ" 1;
+setAttr "FKKnee_L.InvPosX" 1;
+setAttr "FKKnee_L.InvPosY" 1;
+setAttr "FKKnee_L.InvPosZ" 1;
+
+setAttr "FKAnkle_R.InvPosX" 1;
+setAttr "FKAnkle_R.InvPosY" 1;
+setAttr "FKAnkle_R.InvPosZ" 1;
+setAttr "FKAnkle_L.InvPosX" 1;
+setAttr "FKAnkle_L.InvPosY" 1;
+setAttr "FKAnkle_L.InvPosZ" 1;
+
+setAttr "FKToes_R.InvPosX" 1;
+setAttr "FKToes_R.InvPosY" 1;
+setAttr "FKToes_R.InvPosZ" 1;
+setAttr "FKToes_L.InvPosX" 1;
+setAttr "FKToes_L.InvPosY" 1;
+setAttr "FKToes_L.InvPosZ" 1;
+
+setAttr "FKEye_R.InvPosX" 0;
+setAttr "FKEye_R.InvPosY" 0;
+setAttr "FKEye_R.InvPosZ" 1;
+setAttr "FKEye_R.InvRotX" 1;
+setAttr "FKEye_R.InvRotY" 1;
+setAttr "FKEye_L.InvPosX" 0;
+setAttr "FKEye_L.InvPosY" 0;
+setAttr "FKEye_L.InvPosZ" 1;
+setAttr "FKEye_L.InvRotX" 1;
+setAttr "FKEye_L.InvRotY" 1;
+
+setAttr "AimEye_M.InvRotY" 1;
+setAttr "AimEye_M.InvRotZ" 1;
+
+setAttr "IKSpine1_M.InvRotY" 1;
+setAttr "IKSpine1_M.InvRotZ" 1;
+
+setAttr "IKSpine2_M.InvRotY" 1;
+setAttr "IKSpine2_M.InvRotZ" 1;
+
+setAttr "FKScapula_R.InvPosX" 1;
+setAttr "FKScapula_R.InvPosY" 1;
+setAttr "FKScapula_R.InvPosZ" 1;
+setAttr "FKScapula_L.InvPosX" 1;
+setAttr "FKScapula_L.InvPosY" 1;
+setAttr "FKScapula_L.InvPosZ" 1;
+
+setAttr "FKShoulder_R.InvPosX" 1;
+setAttr "FKShoulder_R.InvPosY" 1;
+setAttr "FKShoulder_R.InvPosZ" 1;
+setAttr "FKShoulder_L.InvPosX" 1;
+setAttr "FKShoulder_L.InvPosY" 1;
+setAttr "FKShoulder_L.InvPosZ" 1;
+
+setAttr "FKElbow_R.InvPosX" 1;
+setAttr "FKElbow_R.InvPosY" 1;
+setAttr "FKElbow_R.InvPosZ" 1;
+setAttr "FKElbow_L.InvPosX" 1;
+setAttr "FKElbow_L.InvPosY" 1;
+setAttr "FKElbow_L.InvPosZ" 1;
+
+setAttr "FKWrist_R.InvPosX" 1;
+setAttr "FKWrist_R.InvPosY" 1;
+setAttr "FKWrist_R.InvPosZ" 1;
+setAttr "FKWrist_L.InvPosX" 1;
+setAttr "FKWrist_L.InvPosY" 1;
+setAttr "FKWrist_L.InvPosZ" 1;
+
+setAttr "IKArm_R.InvRotY" 1;
+setAttr "IKArm_R.InvRotZ" 1;
+setAttr "IKArm_L.InvRotY" 1;
+setAttr "IKArm_L.InvRotZ" 1;
+
+setAttr "FKThumbFinger1_R.InvPosX" 1;
+setAttr "FKThumbFinger1_R.InvPosY" 1;
+setAttr "FKThumbFinger1_R.InvPosZ" 1;
+setAttr "FKThumbFinger2_R.InvPosX" 1;
+setAttr "FKThumbFinger2_R.InvPosY" 1;
+setAttr "FKThumbFinger2_R.InvPosZ" 1;
+setAttr "FKThumbFinger3_R.InvPosX" 1;
+setAttr "FKThumbFinger3_R.InvPosY" 1;
+setAttr "FKThumbFinger3_R.InvPosZ" 1;
+setAttr "FKIndexFinger1_R.InvPosX" 1;
+setAttr "FKIndexFinger1_R.InvPosY" 1;
+setAttr "FKIndexFinger1_R.InvPosZ" 1;
+setAttr "FKIndexFinger2_R.InvPosX" 1;
+setAttr "FKIndexFinger2_R.InvPosY" 1;
+setAttr "FKIndexFinger2_R.InvPosZ" 1;
+setAttr "FKIndexFinger3_R.InvPosX" 1;
+setAttr "FKIndexFinger3_R.InvPosY" 1;
+setAttr "FKIndexFinger3_R.InvPosZ" 1;
+setAttr "FKMiddleFinger1_R.InvPosX" 1;
+setAttr "FKMiddleFinger1_R.InvPosY" 1;
+setAttr "FKMiddleFinger1_R.InvPosZ" 1;
+setAttr "FKMiddleFinger2_R.InvPosX" 1;
+setAttr "FKMiddleFinger2_R.InvPosY" 1;
+setAttr "FKMiddleFinger2_R.InvPosZ" 1;
+setAttr "FKMiddleFinger3_R.InvPosX" 1;
+setAttr "FKMiddleFinger3_R.InvPosY" 1;
+setAttr "FKMiddleFinger3_R.InvPosZ" 1;
+setAttr "FKRingFinger1_R.InvPosX" 1;
+setAttr "FKRingFinger1_R.InvPosY" 1;
+setAttr "FKRingFinger1_R.InvPosZ" 1;
+setAttr "FKRingFinger2_R.InvPosX" 1;
+setAttr "FKRingFinger2_R.InvPosY" 1;
+setAttr "FKRingFinger2_R.InvPosZ" 1;
+setAttr "FKRingFinger3_R.InvPosX" 1;
+setAttr "FKRingFinger3_R.InvPosY" 1;
+setAttr "FKRingFinger3_R.InvPosZ" 1;
+setAttr "FKPinkyFinger1_R.InvPosX" 1;
+setAttr "FKPinkyFinger1_R.InvPosY" 1;
+setAttr "FKPinkyFinger1_R.InvPosZ" 1;
+setAttr "FKPinkyFinger2_R.InvPosX" 1;
+setAttr "FKPinkyFinger2_R.InvPosY" 1;
+setAttr "FKPinkyFinger2_R.InvPosZ" 1;
+setAttr "FKPinkyFinger3_R.InvPosX" 1;
+setAttr "FKPinkyFinger3_R.InvPosY" 1;
+setAttr "FKPinkyFinger3_R.InvPosZ" 1;
+
+setAttr "FKThumbFinger1_L.InvPosX" 1;
+setAttr "FKThumbFinger1_L.InvPosY" 1;
+setAttr "FKThumbFinger1_L.InvPosZ" 1;
+setAttr "FKThumbFinger2_L.InvPosX" 1;
+setAttr "FKThumbFinger2_L.InvPosY" 1;
+setAttr "FKThumbFinger2_L.InvPosZ" 1;
+setAttr "FKThumbFinger3_L.InvPosX" 1;
+setAttr "FKThumbFinger3_L.InvPosY" 1;
+setAttr "FKThumbFinger3_L.InvPosZ" 1;
+setAttr "FKIndexFinger1_L.InvPosX" 1;
+setAttr "FKIndexFinger1_L.InvPosY" 1;
+setAttr "FKIndexFinger1_L.InvPosZ" 1;
+setAttr "FKIndexFinger2_L.InvPosX" 1;
+setAttr "FKIndexFinger2_L.InvPosY" 1;
+setAttr "FKIndexFinger2_L.InvPosZ" 1;
+setAttr "FKIndexFinger3_L.InvPosX" 1;
+setAttr "FKIndexFinger3_L.InvPosY" 1;
+setAttr "FKIndexFinger3_L.InvPosZ" 1;
+setAttr "FKMiddleFinger1_L.InvPosX" 1;
+setAttr "FKMiddleFinger1_L.InvPosY" 1;
+setAttr "FKMiddleFinger1_L.InvPosZ" 1;
+setAttr "FKMiddleFinger2_L.InvPosX" 1;
+setAttr "FKMiddleFinger2_L.InvPosY" 1;
+setAttr "FKMiddleFinger2_L.InvPosZ" 1;
+setAttr "FKMiddleFinger3_L.InvPosX" 1;
+setAttr "FKMiddleFinger3_L.InvPosY" 1;
+setAttr "FKMiddleFinger3_L.InvPosZ" 1;
+setAttr "FKRingFinger1_L.InvPosX" 1;
+setAttr "FKRingFinger1_L.InvPosY" 1;
+setAttr "FKRingFinger1_L.InvPosZ" 1;
+setAttr "FKRingFinger2_L.InvPosX" 1;
+setAttr "FKRingFinger2_L.InvPosY" 1;
+setAttr "FKRingFinger2_L.InvPosZ" 1;
+setAttr "FKRingFinger3_L.InvPosX" 1;
+setAttr "FKRingFinger3_L.InvPosY" 1;
+setAttr "FKRingFinger3_L.InvPosZ" 1;
+setAttr "FKPinkyFinger1_L.InvPosX" 1;
+setAttr "FKPinkyFinger1_L.InvPosY" 1;
+setAttr "FKPinkyFinger1_L.InvPosZ" 1;
+setAttr "FKPinkyFinger2_L.InvPosX" 1;
+setAttr "FKPinkyFinger2_L.InvPosY" 1;
+setAttr "FKPinkyFinger2_L.InvPosZ" 1;
+setAttr "FKPinkyFinger3_L.InvPosX" 1;
+setAttr "FKPinkyFinger3_L.InvPosY" 1;
+setAttr "FKPinkyFinger3_L.InvPosZ" 1;
+
+setAttr "FKCup_L.InvPosX" 1;
+setAttr "FKCup_L.InvPosY" 1;
+setAttr "FKCup_L.InvPosZ" 1;
+setAttr "FKCup_R.InvPosX" 1;
+setAttr "FKCup_R.InvPosY" 1;
+setAttr "FKCup_R.InvPosZ" 1;
+//////////////////////
+select -cl;

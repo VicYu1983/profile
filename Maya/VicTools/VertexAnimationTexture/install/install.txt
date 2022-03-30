@@ -1,0 +1,4 @@
+在micro stroe上找python並安裝
+點擊install.bat（會安裝pip及openCV）
+完成
+

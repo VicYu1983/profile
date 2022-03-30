@@ -1,0 +1,89 @@
+global proc hikUpdCurrentSourceFromUI(string $source)
+{
+	waitCursor -state true;
+	$source = stringRemovePrefix( $source, " " );
+	hikSetCurrentSource( $source );
+	int $isRemote = ( endsWith( $source, "(remote)" ) ) ? true : false;
+	string $character = hikGetCurrentCharacter();
+	// Disable the character. This disconnects the retargeter
+	hikEnableCharacter( $character, 2 );
+	// Next, reconnect to the new source...
+	if ( hikIsNoneCharacter( $source ) ) 
+	{
+		// If definition is locked, disable the character
+		// (which is done above). So do nothing here.
+		// If definition is not locked, what should happen??
+		if( hikIsDefinitionLocked($character) ) {
+			// do nothing
+		}
+		else {
+			// TODO: figure out what to do here
+		}
+	}
+	else 
+	{
+		string $labelControlRig = (uiRes("m_hikGlobalUtils.kControlRig")); 
+		string $labelStance= (uiRes("m_hikGlobalUtils.kStance")); 
+		if( $source == $labelControlRig ) {
+			// if we don't already have a control rig, create one.
+			// hikCreateControlRig will try to do the auto-locking
+			// of the definition.
+			//
+			int $hasControlRig = hikHasControlRig($character);
+			if( $hasControlRig ) {
+				hikSetRigInput($character);
+				hikSetLiveState( $character, 1 );
+				hikSelectControlRigTab();
+			}
+			else 
+			{
+				hikCreateControlRig();
+			}
+		}
+		else
+		{
+			// If the definition is not locked yet, try to lock it
+			if( !hikCheckDefinitionLocked($character) ) {
+				hikSelectDefinitionTab();	// select definition tab
+				waitCursor -state false; 
+				return;
+			}
+			
+			if( $source == $labelStance) {
+				hikSetStanceInput($character);
+			}
+			else {
+				hikEnableCharacter( $character, 1 );
+
+				if ( $isRemote )
+					hikSetLiveCharacterInput( $character );
+				else
+					hikSetCharacterInput( $character, $source );
+
+				if ( hikHasCustomRig( $character ) )
+					hikSelectCustomRigTab;
+				else
+					hikSelectControlRigTab;
+			}
+		}
+	}
+	hikUpdateLiveConnectionUI;
+	waitCursor -state false; 
+}
+
+global proc hikUpdCurrentCharacterFromUI(string $source)
+{
+	hikSetCurrentCharacter $source;
+
+	// When we change the current character, make sure we automatically
+	// select the last available tab in the list.
+	string $character = hikGetCurrentCharacter();
+	hikSelectLastTab( $character );
+
+	hikSetCurrentSourceFromCharacter($character);
+	hikUpdateSourceList();
+
+	hikDefinitionUpdateCharacterLists;
+	hikDefinitionUpdateBones;
+}
+
