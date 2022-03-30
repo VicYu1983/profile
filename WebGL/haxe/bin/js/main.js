@@ -35,7 +35,6 @@ var Main = function() {
 			var t = libs_webgl_TextureTool.createTexture(gl,image);
 			engine.pushTexture2D(t);
 		}
-		engine.addObjMeshs(assets.objs);
 		var t = libs_webgl_TextureTool.createCubeMap(gl);
 		engine.pushCubeTexture(t);
 		t = libs_webgl_TextureTool.createCubeMapByURL(gl,512,512,"images/enviroment/001/pos-x.jpg","images/enviroment/001/neg-x.jpg","images/enviroment/001/pos-y.jpg","images/enviroment/001/neg-y.jpg","images/enviroment/001/pos-z.jpg","images/enviroment/001/neg-z.jpg");
@@ -196,11 +195,8 @@ Main.prototype = {
 					div_meshRenderer.show();
 					var meshComp = node.getComponent(libs_webgl_component_MeshRenderComponent);
 					var mesh = meshComp.mesh;
-					if(js_Boot.getClass(mesh) == libs_webgl_mesh_ObjMesh) {
-						var temp = js_Boot.__cast(mesh , libs_webgl_mesh_ObjMesh);
-						var meshId = engine.objMeshs.indexOf(temp);
-						sel_setMesh.combobox("setValue",meshId);
-					}
+					var meshId = engine.objMeshs.indexOf(mesh);
+					sel_setMesh.combobox("setValue",meshId);
 					var material = meshComp.material;
 					var materialId = engine.materials.indexOf(material);
 					sel_setMaterial.combobox("setValue",materialId);
@@ -662,7 +658,7 @@ Main.prototype = {
 		var lookAtComp = new libs_webgl_component_LookAtComponent();
 		lookAtComp.target = lightTarget;
 		engine.defaultLight.addComponent(lookAtComp);
-		var showList = [["ExNormalMap",1,0],["ExColorMap",1,1],["ExCubeMap",1,2],["ExEnviromentMap",0,3]];
+		var showList = [["ExNormalMap",1,0],["ExColorMap",1,1],["ExCubeMap",1,2],["ExEnviromentMap",1,3]];
 		var _g_current = 0;
 		var _g_array = showList;
 		while(_g_current < _g_array.length) {
@@ -709,11 +705,6 @@ Reflect.field = function(o,field) {
 	} catch( _g ) {
 		return null;
 	}
-};
-var Std = function() { };
-Std.__name__ = true;
-Std.string = function(s) {
-	return js_Boot.__string_rec(s,"");
 };
 var StringTools = function() { };
 StringTools.__name__ = true;
@@ -798,70 +789,6 @@ js_Boot.getClass = function(o) {
 		return null;
 	}
 };
-js_Boot.__string_rec = function(o,s) {
-	if(o == null) {
-		return "null";
-	}
-	if(s.length >= 5) {
-		return "<...>";
-	}
-	var t = typeof(o);
-	if(t == "function" && (o.__name__ || o.__ename__)) {
-		t = "object";
-	}
-	switch(t) {
-	case "function":
-		return "<function>";
-	case "object":
-		if(((o) instanceof Array)) {
-			var str = "[";
-			s += "\t";
-			var _g = 0;
-			var _g1 = o.length;
-			while(_g < _g1) {
-				var i = _g++;
-				str += (i > 0 ? "," : "") + js_Boot.__string_rec(o[i],s);
-			}
-			str += "]";
-			return str;
-		}
-		var tostr;
-		try {
-			tostr = o.toString;
-		} catch( _g ) {
-			return "???";
-		}
-		if(tostr != null && tostr != Object.toString && typeof(tostr) == "function") {
-			var s2 = o.toString();
-			if(s2 != "[object Object]") {
-				return s2;
-			}
-		}
-		var str = "{\n";
-		s += "\t";
-		var hasp = o.hasOwnProperty != null;
-		var k = null;
-		for( k in o ) {
-		if(hasp && !o.hasOwnProperty(k)) {
-			continue;
-		}
-		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
-			continue;
-		}
-		if(str.length != 2) {
-			str += ", \n";
-		}
-		str += s + k + " : " + js_Boot.__string_rec(o[k],s);
-		}
-		s = s.substring(1);
-		str += "\n" + s + "}";
-		return str;
-	case "string":
-		return o;
-	default:
-		return String(o);
-	}
-};
 js_Boot.__interfLoop = function(cc,cl) {
 	if(cc == null) {
 		return false;
@@ -939,13 +866,6 @@ js_Boot.__downcastCheck = function(o,cl) {
 		return true;
 	}
 };
-js_Boot.__cast = function(o,t) {
-	if(o == null || js_Boot.__instanceof(o,t)) {
-		return o;
-	} else {
-		throw haxe_Exception.thrown("Cannot cast " + Std.string(o) + " to " + Std.string(t));
-	}
-};
 js_Boot.__nativeClassName = function(o) {
 	var name = js_Boot.__toStr.call(o).slice(8,-1);
 	if(name == "Object" || name == "Function" || name == "Math" || name == "JSON") {
@@ -983,6 +903,8 @@ libs_webgl_Engine.prototype = {
 		this.shaders.push(new libs_webgl_material_shader_BasicShader());
 		this.shaders.push(new libs_webgl_material_shader_CubeMapShader());
 		this.shaders.push(new libs_webgl_material_shader_EnviromentMapShader());
+		this.objMeshs.push(new libs_webgl_mesh_PlaneMesh());
+		this.objMeshs.push(new libs_webgl_mesh_CubeMesh());
 		this.defaultCamera = new libs_webgl_actor_CameraActor("DefaultCamera");
 		this.defaultCamera.transform.position[2] = 10;
 		this.defaultCamera.getComponent(libs_webgl_component_CameraComponent).canvasWidth = this.gl.canvas.clientWidth;
@@ -1372,7 +1294,7 @@ libs_webgl_actor_CameraActor.prototype = $extend(libs_webgl_actor_Actor.prototyp
 });
 var libs_webgl_actor_LightActor = function(name) {
 	libs_webgl_actor_Actor.call(this,name);
-	this.addComponent(new libs_webgl_component_MeshRenderComponent(new libs_webgl_mesh_CubeMesh()));
+	this.addComponent(new libs_webgl_component_MeshRenderComponent(libs_webgl_Engine.inst().objMeshs[1]));
 	this.addComponent(new libs_webgl_component_CameraComponent());
 	this.addComponent(new libs_webgl_component_LightComponent());
 	this.getComponent(libs_webgl_component_CameraComponent).fieldOfView = 100.0;
@@ -1384,8 +1306,7 @@ libs_webgl_actor_LightActor.prototype = $extend(libs_webgl_actor_Actor.prototype
 });
 var libs_webgl_actor_MeshActor = function(name) {
 	libs_webgl_actor_Actor.call(this,name);
-	var mesh = new libs_webgl_mesh_CubeMesh();
-	this.addComponent(new libs_webgl_component_MeshRenderComponent(mesh));
+	this.addComponent(new libs_webgl_component_MeshRenderComponent(libs_webgl_Engine.inst().objMeshs[1]));
 };
 libs_webgl_actor_MeshActor.__name__ = true;
 libs_webgl_actor_MeshActor.__super__ = libs_webgl_actor_Actor;

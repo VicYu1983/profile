@@ -1,3 +1,4 @@
+import libs.webgl.mesh.Mesh;
 import libs.webgl.component.CircleMoveComponent;
 import libs.webgl.component.LookAtComponent;
 import mme.math.glmatrix.Quat;
@@ -41,7 +42,7 @@ class Main{
 				engine.pushTexture2D(t);
 			}
 
-            engine.addObjMeshs(assets.objs);
+            //engine.addObjMeshs(assets.objs);
 
 			var t = TextureTool.createCubeMap(gl);
 			engine.pushCubeTexture(t);
@@ -217,11 +218,17 @@ class Main{
 						div_meshRenderer.show();
 						var meshComp = node.getComponent(MeshRenderComponent);
 						var mesh = meshComp.mesh;
-						if(Type.getClass(mesh) == ObjMesh){
-							var temp = cast(mesh, ObjMesh);
-							var meshId = engine.objMeshs.indexOf(temp);
-							sel_setMesh.combobox('setValue', meshId);
-						}
+
+						var meshId = engine.objMeshs.indexOf(mesh);
+						sel_setMesh.combobox('setValue', meshId);
+						
+						// trace(Type.getClass(mesh));
+						// trace(Type.getClass(mesh) == Mesh);
+						// if(Type.getClass(mesh) == Mesh){
+						// 	var temp = cast(mesh, Mesh);
+						// 	var meshId = engine.objMeshs.indexOf(temp);
+						// 	sel_setMesh.combobox('setValue', meshId);
+						// }
 
 						var material = meshComp.material;
 						var materialId = engine.materials.indexOf(material);
@@ -784,7 +791,7 @@ class Main{
 			['ExNormalMap', 1, 0],
 			['ExColorMap', 1, 1],
 			['ExCubeMap', 1, 2],
-			['ExEnviromentMap', 0, 3],
+			['ExEnviromentMap', 1, 3],
 		];
 
 		for (index => value in showList) {

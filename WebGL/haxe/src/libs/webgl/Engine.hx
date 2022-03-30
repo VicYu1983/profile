@@ -1,5 +1,6 @@
 package libs.webgl;
 
+import libs.webgl.mesh.Mesh;
 import libs.webgl.component.CircleMoveComponent;
 import libs.webgl.material.shader.Shader;
 import libs.webgl.mesh.QuadMesh;
@@ -34,7 +35,7 @@ class Engine{
 
     public var textures:Array<Dynamic> = [];
     public var cubeTextures:Array<Dynamic> = [];
-    public var objMeshs:Array<ObjMesh> = [];
+    public var objMeshs:Array<Mesh> = [];
     public var materials:Array<Material> = [];
 
     public var outlineMaterial:Material;
@@ -59,6 +60,9 @@ class Engine{
         shaders.push(new BasicShader());
         shaders.push(new CubeMapShader());
         shaders.push(new EnviromentMapShader());
+
+        objMeshs.push(new PlaneMesh());
+        objMeshs.push(new CubeMesh());
 
         defaultCamera = new CameraActor('DefaultCamera');
         defaultCamera.transform.position.z = 10;

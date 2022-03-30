@@ -9,7 +9,7 @@ class LightActor extends Actor{
     public function new(name:String) {
         super(name);
         
-        addComponent(new MeshRenderComponent(new CubeMesh()));
+        addComponent(new MeshRenderComponent(Engine.inst().objMeshs[1]));
         addComponent(new CameraComponent());
         addComponent(new LightComponent());
 
