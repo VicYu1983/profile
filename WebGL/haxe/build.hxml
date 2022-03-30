@@ -1,0 +1,4 @@
+-cp src
+-lib haxe-gl-matrix
+--main Main
+--js bin/js/main.js

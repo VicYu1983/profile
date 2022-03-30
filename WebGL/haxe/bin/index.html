@@ -1,0 +1,215 @@
+<head>
+    <meta charset="utf-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<link rel="stylesheet" type="text/css" href="css/easyui/themes/metro-gray/easyui.css">
+    <!-- <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/default/easyui.css"> -->
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/demo/demo.css">
+    <script type="text/javascript" src="https://www.jeasyui.com/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+    <style>
+    .full{
+        width:100%;
+        height:100%;
+    }
+    .margin{
+        margin:5px;
+    }
+    .widthFull{
+        width:100%;
+        position:relative;
+        left:0px;
+        top:0px;
+        margin-bottom:5px;
+    }
+    </style>
+    <div class="easyui-layout full">
+        <div data-options="region:'north'" style="height:50px"></div>
+		<div data-options="region:'west',split:true" title="材質" style="width:350px;">
+			<div class='margin'>
+				<div class="widthFull">
+					<ul id="tree_mats" class="easyui-tree" data-options="dnd:false">
+						
+					</ul>
+				</div>
+				<a id="btn_addMaterial" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'">Add</a>
+				<div class="widthFull">
+					<label id="lbl_materialName"></label> 
+					
+				</div>
+				<div class="widthFull">
+					著色器
+					<select id="sel_shader" class="easyui-combobox" labelPosition="top" style="width:100px;">
+						<option value="0">顔色</option>
+						<option value="1">基本光照</option>
+					</select>
+				</div>
+				<div id="div_colorShader" class='widthFull'>
+					<div class="easyui-panel" title="基本顔色著色器" style="width:100%;padding:10px;">
+						擴散光顔色
+						<input id="col_diffuse" type="color" value="#ffffff">
+						高光顔色
+						<input id="col_specular" type="color" value="#ffffff">
+						<p>光澤度</p>
+						<input id="spn_gloss" class="easyui-slider" style="width:100%" data-options="showTip:true, value:40">
+					</div>
+				</div>
+				<div id="div_basicShader" class='widthFull'>
+					<div class="easyui-panel" title="基本貼圖著色器" style="width:100%;padding:10px;">
+						擴散光顔色
+						<input id="col_diffuse1" type="color" value="#ffffff">
+						高光顔色
+						<input id="col_specular1" type="color" value="#ffffff">
+						<p>光澤度</p>
+						<input id="spn_gloss1" class="easyui-slider" style="width:100%" data-options="showTip:true, value:40">
+						<p>凹凸度</p>
+						<input id="spn_bump1" class="easyui-slider" style="width:100%" data-options="showTip:true, value:.4, min:-2, max:2, step:.01">
+					</div>
+				</div>
+				<div class='widthFull'>
+					<div class="easyui-panel" title="外框綫著色器" style="width:100%;padding:10px;">
+						顔色
+						<input id="col_outlineColor" type="color" value="#000000">
+						<p>粗細度</p>
+						<input id="spn_outlineThickness" class="easyui-slider" style="width:100%" data-options="showTip:true, value:.1, step:.01, min:.01, max:.2">
+					</div>
+				</div>
+			</div>
+		</div>
+        <div data-options="region:'east',split:true" title="物件" style="width:350px;">
+			<div class="margin">
+				<div class="widthFull">
+					<ul id="tree_actors" class="easyui-tree" data-options="dnd:false">
+						
+					</ul>
+				</div>
+				<div class="widthFull">
+					<select id="selMesh" class="easyui-combobox" labelPosition="top" style="width:100px;">
+						<option value="0">方體</option>
+						<option value="1">球體</option>
+						<option value="2">猴子</option>
+					</select>
+					<a id="btnAdd" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'">Add</a>
+				</div>
+				<div class="widthFull">
+					<label id="nodeName"></label>
+				</div>
+				<div class="widthFull">
+					<div class="easyui-panel" title="坐標變換組件" style="width:100%;padding:10px;">
+						<div class="widthFull">
+							位置:
+							<input id="posx" class="easyui-numberspinner" style="width:80px;" data-options="value:0.0, increment:.1, editable:true, precision:2">
+							<input id="posy" class="easyui-numberspinner" style="width:80px;" data-options="value:0.0, increment:.1, editable:true, precision:2">
+							<input id="posz" class="easyui-numberspinner" style="width:80px;" data-options="value:0.0, increment:.1, editable:true, precision:2">
+						</div>
+						<div class="widthFull">
+							旋轉:
+							<input id="rotx" class="easyui-numberspinner" style="width:80px;" data-options="value:0.0, increment:1, editable:true, precision:2">
+							<input id="roty" class="easyui-numberspinner" style="width:80px;" data-options="value:0.0, increment:1, editable:true, precision:2">
+							<input id="rotz" class="easyui-numberspinner" style="width:80px;" data-options="value:0.0, increment:1, editable:true, precision:2">
+						</div>
+						<div class="widthFull">
+							縮放:
+							<input id="scax" class="easyui-numberspinner" style="width:80px;" data-options="value:0.0, increment:.1, editable:true, precision:2">
+							<input id="scay" class="easyui-numberspinner" style="width:80px;" data-options="value:0.0, increment:.1, editable:true, precision:2">
+							<input id="scaz" class="easyui-numberspinner" style="width:80px;" data-options="value:0.0, increment:.1, editable:true, precision:2">
+						</div>
+					</div>
+				</div>
+				<div id='div_light' class='widthFull'>
+					<div class="easyui-panel" title="燈光組件" style="width:100%;padding:10px;">
+						燈光顔色
+						<input id="col_light" type="color" value="#ffffff">
+						<p>聚光燈内圍</p>
+						<input id="spn_lightOuter" class="easyui-slider" style="width:100%" data-options="showTip:true, min:0.02, max:1.0, value:1.0, step:0.01">
+						<p>聚光燈外圍</p>
+						<input id="spn_lightInner" class="easyui-slider" style="width:100%" data-options="showTip:true, min:0.01, max:1.0, value:.9, step:0.01">
+					</div>
+				</div>
+				<div id='div_meshRenderer' class='widthFull'>
+					<div class="easyui-panel" title="多邊形渲染組件" style="width:100%;padding:10px;">
+						多邊形設置
+						<select id="sel_setMesh" class="easyui-combobox" labelPosition="top" style="width:200px;">
+							<option value="0">方體</option>
+							<option value="1">球體</option>
+							<option value="2">猴子</option>
+						</select>
+						<p></p>
+						材質球設置
+						<select id="sel_setMaterial" class="easyui-combobox" labelPosition="top" style="width:200px;">
+							
+						</select>
+					</div>
+				</div>
+				<div id='div_lookAt' class='widthFull'>
+					<div class="easyui-panel" title="朝向目標組件" style="width:100%;padding:10px;">
+						目標
+						<select id="sel_lookAtActor" class="easyui-combobox" labelPosition="top" style="width:200px;">
+							
+						</select>
+					</div>
+				</div>
+				<div id='div_circleMove' class='widthFull'>
+					<div class="easyui-panel" title="圓動畫組件" style="width:100%;padding:20px;">
+						<div class="widthFull">
+							<p>速度:</p>
+							<input id="spn_circleSpeed" class="easyui-slider" style="width:100%" data-options="showTip:true, step:.01, min:-10, max:10, value:0">
+							<p>範圍:</p>
+							<input id="spn_circleRange" class="easyui-slider" style="width:100%" data-options="showTip:true, max:100, value:0">
+						</div>
+					</div>
+				</div>
+				<div id='div_camera' class='widthFull'>
+					<div class="easyui-panel" title="攝像機組件" style="width:100%;padding:20px;">
+						<div class="widthFull">
+							<p>FOV:</p>
+							<input id="spn_fov" class="easyui-slider" style="width:100%" data-options="showTip:true, min:10, max:150, value:40">
+							<p>Near:</p>
+							<input id="spn_near" class="easyui-slider" style="width:100%" data-options="showTip:true, max:1000, value:0">
+							<p>Far:</p>
+							<input id="spn_far" class="easyui-slider" style="width:100%" data-options="showTip:true, max:1000, value:100">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+        <div class="full" data-options="region:'center',title:'Main Title',iconCls:'icon-ok'">
+            <canvas width='960px' height='960px' id='webgl2'></canvas>
+        </div>
+    </div>
+	<canvas width='960px' height='960px' id='webgl2'></canvas>
+	<script src='js/vic.webgl.importer.js'></script>
+	<script src='js/vic.webgl.engine.js'></script>
+	<script src="js/main.js"></script>
+	<script>
+
+	const canvas = document.querySelector('#webgl2');
+	const gl = canvas.getContext('webgl2');
+	// const ctx = canvas.getContext('2d');
+
+	const imageList = [
+        // 'images/flow.jpg', 
+        // 'images/images.jpg', 
+        // 'images/testFracture.jpg', 
+        // 'images/WoodPlanksOld0250_3_270.jpg', 
+        'images/T_Lgh_001_C.jpg',
+        'images/T_Lgh_001_N.jpg',
+        ];
+	const objList = [
+		'models/cube.obj',
+		'models/sphere2.obj', 
+		'models/monkey.obj', 
+		// 'models/transform.obj'
+	];
+	vic.webgl.engine.loadAssets(imageList, objList).then((assets)=>{
+		const images = assets[0];
+		const objs = assets[1];
+		$(window).trigger('onAssetsLoaded', {images:images, objs:objs, gl:gl});
+	});
+	</script>
+    
+</body>
+</html>
