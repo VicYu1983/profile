@@ -1,3 +1,25 @@
+# 公司經歷
+
+## 北京九鳳-資深技術美術(5年以上)
++ 負責各種3d軟體端的工具製作以及維護（3ds max, maya, houdini, motion builder）
++ 解決各種美術在工作中遇到的技術問題
++ 負責unreal的動畫相關的component製作（c++以及藍圖）
++ 負責部分rig製作
+
+## [之前](https://pda.104.com.tw/profile/share/3B0Ll34jDYVAISjJPOrZe1XJCjxeHnu4)
++ unity游戲前端
++ ios前端
++ 游戲特效
++ 游戲動畫師
++ 前端網頁工程師
+
+# 我覺得我可以
++ 幫助公司解決美術軟件到游戲引擎之間的技術問題
++ 很好的協助以及提升美術的製作效率
++ 幫助公司制定製作規格
++ 優化以及調整繪圖管綫
++ 可以在美術和程式之間提供很好的溝通管道
+
 # 軟體外挂開發
 
 ## UNREAL
@@ -72,19 +94,7 @@
 + [WEBGL2範例-隧道](https://vicyu1983.github.io/profile/webgl2_example/testShaderToy.html)
 + [WEBGL2範例-冒烟鴨子](https://vicyu1983.github.io/profile/webgl2_example/testSmokingDuck.html)
 
-# 公司經歷
 
-## 北京九鳳-資深技術美術(5年以上)
-+ 負責各種3d軟體端的工具製作以及維護（3ds max, maya, houdini, motion builder）
-+ 解決各種美術在工作中遇到的技術問題
-+ 負責unreal的動畫相關的component製作（c++以及藍圖）
-
-## [之前](https://pda.104.com.tw/profile/share/3B0Ll34jDYVAISjJPOrZe1XJCjxeHnu4)
-+ unity游戲前端
-+ ios前端
-+ 游戲特效
-+ 游戲動畫師
-+ 前端網頁工程師
 
 
 
