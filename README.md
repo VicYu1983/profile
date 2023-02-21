@@ -6,12 +6,12 @@
 + 負責unreal的動畫相關的component製作（c++以及藍圖）
 + 負責部分rig製作
 
-## [之前](https://pda.104.com.tw/profile/share/3B0Ll34jDYVAISjJPOrZe1XJCjxeHnu4)
+## [之前（詳情見104）](https://pda.104.com.tw/profile/share/3B0Ll34jDYVAISjJPOrZe1XJCjxeHnu4)
 + unity游戲前端
 + ios前端
++ 前端網頁工程師
 + 游戲特效
 + 游戲動畫師
-+ 前端網頁工程師
 
 # 我覺得我可以
 + 幫助公司解決美術軟件到游戲引擎之間的技術問題
@@ -20,7 +20,7 @@
 + 優化以及調整繪圖管綫
 + 可以在美術和程式之間提供很好的溝通管道
 
-# 軟體外挂開發
+# 作品
 
 ## UNREAL
 + 程序化房屋工具
@@ -31,7 +31,7 @@
 + 程序化河流工具
 
 ## UNITY
-+ [批次出圖工具](https://1drv.ms/u/s!Apea4elXUnuxhMAwI3GehBq5s-9UhA?e=B736uG)
++ [批次出圖代碼](https://1drv.ms/u/s!Apea4elXUnuxhMAwI3GehBq5s-9UhA?e=B736uG)
 
 ## COCOSCREATOR
 + [自動添加widgets并且設置為滿版的功能](https://store.cocos.com/app/en/detail/3112)
@@ -88,7 +88,7 @@
 + [上善若水前端開發製作](https://particle-979.appspot.com/manager/index.html#)
 + [WEBGL2代碼示範編輯器](https://vicyu1983.github.io/profile/webgl_example/index.html)
 
-## HTML5 shader effect from shadertoy
+## HTML5 繪圖管綫實作（效果移植自shader toy）
 + [WEBGL2範例-2D流體](https://vicyu1983.github.io/profile/webgl2_example/test2DNavierStokes.html)
 + [WEBGL2範例-4D太陽](https://vicyu1983.github.io/profile/webgl2_example/test4DSun.html)
 + [WEBGL2範例-隧道](https://vicyu1983.github.io/profile/webgl2_example/testShaderToy.html)
