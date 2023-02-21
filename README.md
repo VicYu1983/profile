@@ -71,7 +71,7 @@
 + BGE用粒子系統
 + 開發日常（有工作后沒什麽時間更新）（https://www.facebook.com/groups/1483083281758123）
 
-## [FLASH]
+## FLASH
 + 2D粒子編輯器（http://storage.googleapis.com/particle-resources/works/dreamParticlePrototype/index.html）
 
 ## PHOTOSHOP
