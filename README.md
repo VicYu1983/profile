@@ -13,6 +13,17 @@
 + 游戲特效
 + 游戲動畫師
 
+# 學習經歷
++ 3d動畫
++ 3d特效
++ 3d模型製作
++ html css javascript
++ unity
++ unreal
++ maya python
++ 3ds max script
++ webgl2
+
 # 我覺得我可以
 + 幫助公司解決美術軟件到游戲引擎之間的技術問題
 + 很好的協助以及提升美術的製作效率
