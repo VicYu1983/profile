@@ -35,6 +35,11 @@
 + 程序化燈籠工具
 + 程序化橋梁工具
 + 彈性骨骼工具
++ BGE用粒子系統
++ 開發日常（有工作后沒什麽時間更新）（https://www.facebook.com/groups/1483083281758123）
+
+## [FLASH]
++ 2D粒子編輯器（http://storage.googleapis.com/particle-resources/works/dreamParticlePrototype/index.html）
 
 ## PHOTOSHOP
 + [批次轉換名稱工具](https://1drv.ms/u/s!Apea4elXUnuxgrd83d7cVU9fQtU8zQ?e=JuCWTZ)
@@ -49,7 +54,7 @@
 # 游戲前端開發
 
 ## UNREAL
-+ 前端component製作
++ 前端component製作(c++以及藍圖)
 
 ## COCOSCREATOR
 + 游戲前端製作
@@ -59,13 +64,28 @@
 
 ## HTML5
 + [上善若水前端開發製作](https://particle-979.appspot.com/manager/index.html#)
-+ [WEBGL代碼示範編輯器](https://vicyu1983.github.io/profile/webgl_example/index.html)
++ [WEBGL2代碼示範編輯器](https://vicyu1983.github.io/profile/webgl_example/index.html)
 
 ## HTML5 shader effect from shadertoy
 + [WEBGL2範例-2D流體](https://vicyu1983.github.io/profile/webgl2_example/test2DNavierStokes.html)
 + [WEBGL2範例-4D太陽](https://vicyu1983.github.io/profile/webgl2_example/test4DSun.html)
 + [WEBGL2範例-隧道](https://vicyu1983.github.io/profile/webgl2_example/testShaderToy.html)
 + [WEBGL2範例-冒烟鴨子](https://vicyu1983.github.io/profile/webgl2_example/testSmokingDuck.html)
+
+# 公司經歷
+
+## 北京九鳳-資深技術美術(5年以上)
++ 負責各種3d軟體端的工具製作以及維護（3ds max, maya, houdini, motion builder）
++ 解決各種美術在工作中遇到的技術問題
++ 負責unreal的動畫相關的component製作（c++以及藍圖）
+
+## [之前](https://pda.104.com.tw/profile/share/3B0Ll34jDYVAISjJPOrZe1XJCjxeHnu4)
++ unity游戲前端
++ ios前端
++ 游戲特效
++ 游戲動畫師
++ 前端網頁工程師
+
 
 
 
