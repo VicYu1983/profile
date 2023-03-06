@@ -475,7 +475,7 @@ class WebglEngine {
 	// }
 
 	public function changeMaterial(geometryId:String, materialId:String) {
-		LogManager.getLogger('hex').info('修改材質:${geometryId} ${materialId}');
+		LogManager.getLogger('hex').debug('修改材質:${geometryId} ${materialId}');
 
 		final geometry = geometrys.get(geometryId);
 		if (geometry == null)
@@ -493,7 +493,7 @@ class WebglEngine {
 		final oldMaterialId = geometry.materialId;
 		geometry.materialId = materialId;
 
-		LogManager.getLogger('hex').info('目前材質${materialId}繪製物件數目:${material.geometrys.length}');
+		LogManager.getLogger('hex').debug('目前材質${materialId}繪製物件數目:${material.geometrys.length}');
 
 		if (oldMaterialId == null)
 			return;

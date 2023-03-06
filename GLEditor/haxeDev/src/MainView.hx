@@ -1,5 +1,8 @@
 package;
 
+import webgl.shaders.greenFieldDiorama.GFDBufferImageShader;
+import webgl.shaders.greenFieldDiorama.GFDBufferBShader;
+import webgl.shaders.greenFieldDiorama.GFDBufferAShader;
 import webgl.shaders.fourDSun.FourDSunImageShader;
 import webgl.shaders.fourDSun.FourDSunBufferAShader;
 import webgl.shaders.smokingDuck.SmokingDuckBufferD;
@@ -67,10 +70,13 @@ class MainView extends VBox {
 		// test2DNavierStokes();
 
 		// https://www.shadertoy.com/view/mtfXD4
-		testSmokingDuck();
+		// testSmokingDuck();
 
 		// https://www.shadertoy.com/view/wtVGDR
 		// test4DSun();
+
+		// https://www.shadertoy.com/view/7dSGW1
+		testGreenFieldDiorama();
 
 		// testMultiTexture();
 		// testShaderToy();
@@ -375,6 +381,92 @@ class MainView extends VBox {
 		}
 	}
 
+	function testGreenFieldDiorama() {
+		WebglEngine.inst.init('canvas_gl');
+		final gl = WebglEngine.inst.gl;
+		if (gl != null) {
+			WebglEngine.inst.enabledWriteFloatInFramebuffer();
+			final tw = 1024;
+			final th = 768;
+
+			WebglEngine.inst.addShader('GFDBufferAShader', new GFDBufferAShader());
+			WebglEngine.inst.addShader('GFDBufferBShader', new GFDBufferBShader());
+			WebglEngine.inst.addShader('GFDBufferImageShader', new GFDBufferImageShader());
+
+			WebglEngine.inst.createRenderTarget('GFDBufferA', tw, th);
+			WebglEngine.inst.createRenderTarget('GFDBufferB1', tw, th);
+			WebglEngine.inst.createRenderTarget('GFDBufferB2', tw, th);
+
+			WebglEngine.inst.createMaterial('GFDBufferAMaterial', 'GFDBufferAShader');
+
+			final bufferBMaterial = WebglEngine.inst.createMaterial('GFDBufferBMaterial', 'GFDBufferBShader');
+			if (bufferBMaterial != null) {
+				bufferBMaterial.uniform.set('u_bufferA', 0);
+				bufferBMaterial.uniform.set('u_bufferB', 1);
+				bufferBMaterial.textures.push('GFDBufferA');
+				bufferBMaterial.textures.push('GFDBufferB1');
+			}
+
+			final imageMaterial = WebglEngine.inst.createMaterial('GFDBufferImageMaterial', 'GFDBufferImageShader');
+			if (imageMaterial != null) {
+				imageMaterial.uniform.set('u_bufferA', 0);
+				imageMaterial.uniform.set('u_bufferB', 1);
+				imageMaterial.textures.push('GFDBufferA');
+				imageMaterial.textures.push('GFDBufferB1');
+			}
+			final rect = Tool.createMeshEntity('rect', RECTANGLE2D, 'GFDBufferImageMaterial');
+
+			var lastRender = 0.0;
+			var tickCount = 0.0;
+			function render(timestamp:Float) {
+				final progress = timestamp - lastRender;
+				lastRender = timestamp;
+
+				final mr = rect.getComponent(MeshRenderer);
+				if (mr != null && mr.geometry != null) {
+					final pm = Mat3Tools.projection(gl.canvas.width, gl.canvas.height);
+					final modelMatrix = Mat3.fromScaling(null, Vec2.fromValues(tw / 100.0, th / 100.0));
+					mr.geometry.uniform.set('u_time', [timestamp]);
+					mr.geometry.uniform.set('u_matrix', pm.toArray());
+					mr.geometry.uniform.set('u_modelMatrix', modelMatrix.toArray());
+
+					// bufferA
+					// 指定新的不顯示的畫布
+					WebglEngine.inst.changeMaterial(mr.name, 'GFDBufferAMaterial');
+					// 指定新的不顯示的畫布
+					WebglEngine.inst.bindFrameBuffer('GFDBufferA');
+					// 畫在指定的不顯示的畫布上
+					WebglEngine.inst.render(tw, th, Vec3.fromValues(0.0, 0.0, 1));
+
+					// bufferB
+					// 指定新的不顯示的畫布
+					WebglEngine.inst.changeMaterial(mr.name, 'GFDBufferBMaterial');
+					if (bufferBMaterial != null && bufferBMaterial.textures.length > 1) {
+						bufferBMaterial.textures.pop();
+						bufferBMaterial.textures.push(tickCount % 2 == 0 ? 'GFDBufferB1' : 'GFDBufferB2');
+					}
+					// 指定新的不顯示的畫布
+					WebglEngine.inst.bindFrameBuffer(tickCount % 2 == 0 ? 'GFDBufferB2' : 'GFDBufferB1');
+
+					// 畫在指定的不顯示的畫布上
+					WebglEngine.inst.render(tw, th, Vec3.fromValues(0.0, 0.0, 1));
+
+					// image
+					WebglEngine.inst.changeMaterial(mr.name, 'GFDBufferImageMaterial');
+					// WebglEngine.inst.changeMaterial(mr.name, 'GFDBufferBMaterial');
+
+					WebglEngine.inst.defaultFrameBuffer();
+					// 畫在當前的顯示畫布
+					WebglEngine.inst.render(gl.canvas.width, gl.canvas.height, Vec3.fromValues(0.7, 0.7, 0.7));
+				}
+
+				Browser.window.requestAnimationFrame(render);
+				tickCount += 1;
+			}
+			Browser.window.requestAnimationFrame(render);
+		}
+	}
+
 	function test4DSun() {
 		WebglEngine.inst.init('canvas_gl');
 		final gl = WebglEngine.inst.gl;
@@ -390,7 +482,7 @@ class MainView extends VBox {
 			WebglEngine.inst.createRenderTarget('FourDSunBufferA', tw, th);
 
 			final bufferAMaterial = WebglEngine.inst.createMaterial('bufferAMaterial', 'FourDSunBufferAShader');
-			
+
 			final imageMaterial = WebglEngine.inst.createMaterial('imageMaterial', 'FourDSunImageShader');
 			if (imageMaterial != null) {
 				imageMaterial.uniform.set('u_bufferA', 0);
