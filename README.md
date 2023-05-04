@@ -55,7 +55,7 @@
 + 根據選擇的uv轉換成選擇對應的頂點工具
 
 ## MAYA
-+ 骨架動作轉為可編輯控制器動作工具
++ [骨架動作轉為可編輯控制器動作工具](https://vicyu1983.github.io/profile/assets/importSingleFBX.gif)
 + 批次骨架動作輸出工具
 + 控制器中心轉換工具
 + IKFK轉換工具
