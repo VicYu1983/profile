@@ -50,9 +50,9 @@
 
 ## 3DS MAX
 + 物體法綫轉換工具
-+ 多物件動態轉換成單物件skin的功能工具
++ [多物件動態轉換成單物件skin的功能工具](https://vicyu1983.github.io/profile/assets/dynamic_to_skin.gif)
 + skin物件輸出成頂點動畫工具
-+ 根據選擇的uv轉換成選擇對應的頂點工具
++ [根據選擇的uv轉換成選擇對應的頂點工具](https://vicyu1983.github.io/profile/assets/uv_to_vertex.gif)
 
 ## MAYA
 + [骨架動作轉為可編輯控制器動作工具](https://vicyu1983.github.io/profile/assets/importSingleFBX.gif)
@@ -61,8 +61,13 @@
 + [IKFK轉換工具](https://vicyu1983.github.io/profile/assets/IKFKConverter.gif)
 + [彈性骨骼工具](https://vicyu1983.github.io/profile/assets/springBone.gif)
 + [動畫重排工具](https://vicyu1983.github.io/profile/assets/rerangeAnimation.gif)
-+ ![多物件動態轉換成單物件skin的功能工具](https://vicyu1983.github.io/profile/assets/VAConverter.jpg)
++ [多物件動態轉換成單物件skin的功能工具](https://vicyu1983.github.io/profile/assets/aniToSkeleton.gif)
 + skin物件輸出成頂點動畫工具
++ [快速骨頭創建](https://vicyu1983.github.io/profile/assets/quick_joint.gif)
++ [快速FK](https://vicyu1983.github.io/profile/assets/quick_FK.gif)
++ [快速splineIK](https://vicyu1983.github.io/profile/assets/quick_spline_ctrl.gif)
++ [重命名工具](https://vicyu1983.github.io/profile/assets/quick_rename.gif)
++ [快速選取](https://vicyu1983.github.io/profile/assets/quick_select_scale.gif)
 
 ## [BLENDER](https://github.com/VicYu1983/blenderAddon)
 + 程序化樓梯工具
