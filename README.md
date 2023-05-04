@@ -57,11 +57,11 @@
 ## MAYA
 + [骨架動作轉為可編輯控制器動作工具](https://vicyu1983.github.io/profile/assets/importSingleFBX.gif)
 + 批次骨架動作輸出工具
-+ 控制器中心轉換工具
-+ IKFK轉換工具
-+ 彈性骨骼工具
-+ 動畫重排工具
-+ 多物件動態轉換成單物件skin的功能工具
++ [控制器中心轉換工具](https://vicyu1983.github.io/profile/assets/transferOffset.gif)
++ [IKFK轉換工具](https://vicyu1983.github.io/profile/assets/IKFKConverter.gif)
++ [彈性骨骼工具](https://vicyu1983.github.io/profile/assets/springBone.gif)
++ [動畫重排工具](https://vicyu1983.github.io/profile/assets/rerangeAnimation.gif)
++ ![多物件動態轉換成單物件skin的功能工具](https://vicyu1983.github.io/profile/assets/VAConverter.jpg)
 + skin物件輸出成頂點動畫工具
 
 ## [BLENDER](https://github.com/VicYu1983/blenderAddon)
